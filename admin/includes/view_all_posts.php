@@ -1,0 +1,269 @@
+	<?php 
+
+  include("includes/delete_modal.php");
+
+
+  if (isset($_POST['checkBoxArray'])) {
+
+     	foreach ($_POST['checkBoxArray'] as $postValueId) {    // Por cada elemento del array realiza un switch para saber que tipo de los 3 casos es.
+     		
+     		$bulk_options = $_POST['bulk_options'];
+
+     		switch ($bulk_options) {
+     			
+
+          case 'published':
+
+          $query = "UPDATE posts SET post_status = '{$bulk_options}' WHERE post_id = {$postValueId}";
+
+          $update_to_published_status = mysqli_query($connection, $query);
+
+
+          if (!$update_to_published_status) {
+            die("QUERY FAILED" . mysql_error($connection));
+
+          }
+
+          break;
+
+
+
+          case 'draft':
+
+          $query = "UPDATE posts SET post_status = '{$bulk_options}' WHERE post_id = {$postValueId}";
+
+          $update_to_published_status = mysqli_query($connection, $query);
+
+
+          if (!$update_to_published_status) {
+            die("QUERY FAILED" . mysql_error($connection));
+
+          }
+
+          break;
+
+
+
+          case 'delete':
+
+          $query = "DELETE FROM posts WHERE post_id = {$postValueId}";
+
+          $delete_post = mysqli_query($connection, $query);
+
+
+          if (!$delete_post) {
+           die("QUERY FAILED" . mysql_error($connection));
+
+         }
+
+         break;
+
+
+
+         case 'clone':
+
+         $query = "SELECT * FROM posts WHERE post_id = '{$postValueId}'";
+         $select_posts = mysqli_query($connection, $query);
+
+         while($row = mysqli_fetch_assoc($select_posts)) {
+           $post_id = $row['post_id'];
+           $post_category_id = $row['post_category_id'];
+           $post_title = $row['post_title'];
+           $post_author = $row['post_author'];
+           $post_date = $row['post_date'];
+           $post_image = $row['post_image'];
+           $post_content = $row['post_content'];
+           $post_tags = $row['post_tags'];
+           $post_comment_count = $row['post_comment_count'];
+           $post_status = $row['post_status'];
+           $post_views_count = $row['post_views_count'];
+           $post_user = $row['post_user'];
+
+
+         }
+
+         $query = "INSERT INTO posts(post_category_id, post_title, post_user, post_author, post_date, post_image, post_content, post_tags, post_status) ";
+         $query .= "VALUES({$post_category_id},'{$post_title}','{$post_user}', '{$post_author}',now(),'{$post_image}','{$post_content}','{$post_tags}', '{$post_status}') "; 
+
+         $clone_query = mysqli_query($connection, $query);  
+
+         if (!$clone_query) {
+
+           die('QUERY FAILED ' . mysqli_error($connection));
+
+         }
+
+         break;
+
+
+
+         default:
+     	  		# code...
+         break;
+       } 
+
+     }
+   }
+
+   ?>
+
+
+
+   <form action="" method="post">
+
+    <table class ="table table-bordered table-hover">
+
+      <div id="bulkOptionContainer" class="col-xs-3">
+        <select name="bulk_options" id="" class="form-control">
+          <option value="">Seleccionar Opcion</option>
+          <option value="published">Publish</option>
+          <option value="draft">Draft</option>
+          <option value="delete">Delete</option>
+          <option value="clone">Clone</option>
+
+        </select>
+      </div>
+
+      <div class="col-xs-3">
+       <input type="submit" name="submit" class="btn btn-success" value="Aplicar">
+
+       <a class="btn btn-primary" href="posts.php?source=add_post">Agregar</a>
+     </div>
+
+     <tr>
+       <th><input id="selectAllBoxes" type="checkbox"></th>
+       <th>Id</th>
+       <th>Category Id</th>
+
+       <th>Title</th>
+       <th>Author</th>
+       <th>User</th>
+       <th>Date</th>
+       <th>Image</th>
+       <th>Content</th>
+       <th>Tags</th>
+       <th>Comments Count</th>
+       <th>Status</th>
+       <th>Views Count</th>
+       <th>View Post</th>
+       <th>Edit</th>
+       <th>Delete</th>
+       <th>Views</th>
+     </tr>
+     <tbody>
+
+       <?php 
+
+
+
+       $query = "SELECT * FROM posts ORDER BY post_id ASC";
+
+       /*     $query = "SELECT posts.post_id, posts.post_author, categories.cat_id, categories.cat_title FROM posts LEFT JOIN categories ON post.post_category_id = categories.cat_id";     // Table JOIN   */
+
+       $select_posts = mysqli_query($connection, $query);
+
+       while($row = mysqli_fetch_assoc($select_posts)) {
+         $post_id = $row['post_id'];
+         $post_category_id = $row['post_category_id'];
+         $post_title = $row['post_title'];
+         $post_author = $row['post_author'];
+         $post_date = $row['post_date'];
+         $post_image = $row['post_image'];
+         $post_content = $row['post_content'];
+         $post_tags = $row['post_tags'];
+         $post_comment_count = $row['post_comment_count'];
+         $post_status = $row['post_status'];
+         $post_user = $row['post_user'];
+         $post_views_count = $row['post_views_count'];
+
+
+
+         echo "<tr>";
+
+         ?>
+
+         <td><input class="checkBoxes" type="checkbox" name="checkBoxArray[]" value="<?php echo $post_id; ?>"></td>
+
+         <?php  
+
+         echo "<td>$post_id</td>";
+         echo "<td>$post_category_id</td>";
+         echo "<td>$post_title</td>";
+         echo "<td>$post_author</td>";
+         echo "<td>$post_user</td>";
+         echo "<td>$post_date</td>";
+         echo "<td><img width='100' src='../images/$post_image'></td>";
+         echo "<td>$post_content</td>";
+         echo "<td>$post_tags</td>";
+
+
+        //// Modifica el contador de los comentarios, metodo 2 //////
+
+         $query = "SELECT * FROM comments WHERE comment_post_id = $post_id";
+         $send_comment_query = mysqli_query($connection, $query);
+         $count_comments = mysqli_num_rows($send_comment_query);
+
+         echo "<td><a href='comments.php?id=$post_id'>$count_comments<a></td>";
+         echo "<td>$post_status</td>";
+         echo "<td>$post_views_count</td>";
+         echo "<td><a href='../post.php?p_id={$post_id}'>View Post</a></td>";
+         echo "<td><a href='posts.php?source=edit_post&p_id={$post_id}'>Edit</a></td>";
+         echo "<td><a href='javascript:void(0)' rel='$post_id' class='delete_link'>Delete</a></td>";
+    //     echo "<td><a onClick=\"javascript: return confirm('Desea Eliminar?'); \" href='posts.php?delete={$post_id}'>Delete</a></td>";
+         echo "<td>{$post_views_count}</td>";
+         echo "</tr>";
+
+       }
+
+       ?>
+
+
+     </tbody>
+   </table>
+ </form>
+ 
+
+ <script>
+
+     /// Script del modal para eliminar un post
+
+     $(document).ready(function(){
+
+      $(".delete_link").on('click', function(){
+
+        var id = $(this).attr("rel");
+
+        var delete_url = "posts.php?delete=" + id + " ";
+
+        $(".modal_delete_link").attr("href", delete_url);
+
+        $("#myModal").modal('show');
+
+
+      });
+    });
+
+  </script>  
+
+
+
+  <?php 
+
+  if (isset($_GET['delete'])) {
+
+//      if (isset($_SESSION['user_role'])) {           /// Evita que se borre un usuario desde la barra de direccion del navegador
+
+  //      if ($_SESSION['user_role'] == 'admin') {
+
+
+   deletePost();
+
+ //      }
+
+ //    }
+
+ }
+
+ ?>
+
+
