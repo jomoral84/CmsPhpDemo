@@ -1,34 +1,28 @@
-<?php  include "includes/db.php"; ?>
-<?php  include "includes/header.php"; ?>
+<?php include "includes/db.php"; ?>
+<?php include "includes/header.php"; ?>
 
 
-<?php 
+<?php
 
- checkIfUserIsLoggedInAndRedirect('/cmsDemo/admin');
+checkIfUserIsLoggedInAndRedirect('/cmsDemo/admin');
 
 if (ifItIsMethod('post')) {
-	
+
 	if (isset($_POST['user_username']) && isset($_POST['user_password'])) {
 
-		login_user($_POST['user_username'] , $_POST['user_password']); 
-		
+		login_user($_POST['user_username'], $_POST['user_password']);
 	} else {
 
 		redirect('/cmsDemo/login.php');
 	}
-}   
-
-
-
-
-
+}
 
 
 ?>
 
 <!-- Navigation -->
 
-<?php  include "includes/navigation.php"; ?>
+<?php include "includes/navigation.php"; ?>
 
 
 <!-- Page Content -->
@@ -54,14 +48,14 @@ if (ifItIsMethod('post')) {
 										<div class="input-group">
 											<span class="input-group-addon"><i class="glyphicon glyphicon-user color-blue"></i></span>
 
-											<input name="user_username" type="text" class="form-control" placeholder="Enter Username">
+											<input name="user_username" type="text" class="form-control" placeholder="Ingresar Username">
 										</div>
 									</div>
 
 									<div class="form-group">
 										<div class="input-group">
 											<span class="input-group-addon"><i class="glyphicon glyphicon-lock color-blue"></i></span>
-											<input name="user_password" type="password" class="form-control" placeholder="Enter Password">
+											<input name="user_password" type="password" class="form-control" placeholder="Ingresar Password">
 										</div>
 									</div>
 
@@ -84,6 +78,6 @@ if (ifItIsMethod('post')) {
 
 	<hr>
 
-	<?php include "includes/footer.php";?>
+	<?php include "includes/footer.php"; ?>
 
 </div> <!-- /.container -->
